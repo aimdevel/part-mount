@@ -1,5 +1,6 @@
 extern crate libparted;
 extern crate sys_mount;
+extern crate loopdev;
 
 use std::process::exit;
 use clap::Parser;
@@ -7,6 +8,7 @@ use libparted::{Device, Disk};
 use sys_mount::{
     Mount,
 };
+use loopdev::LoopDevice;
 
 #[derive(Parser)]
 struct Args {
@@ -69,7 +71,17 @@ impl PartMount{
         let mount_result = mount_builder.mount(&self.device, &self.mount_point);
 
         match mount_result {
-            Ok(_) => eprintln!("mount success!"),
+            Ok(mount) => {
+                println!("mount succcess");
+                match mount.backing_loop_device() {
+                    Some(path) => {
+                        println!("make auto clear flag of {} on.", &path.display());
+                        let ld = LoopDevice::open(path).unwrap();
+                        ld.detach().unwrap();
+                    },
+                    None => println!("cannot get loopback device name."),
+                };
+            },
             Err(why) => eprintln!("error!:{}", why),
         };
     }
