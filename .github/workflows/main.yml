@@ -1,14 +1,13 @@
 name: rust_ci
 
 on:
-#  push:
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: setup package
         run: sudo apt install libparted-dev  
       - name: install stable
