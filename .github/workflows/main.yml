@@ -20,3 +20,9 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
+      - name: binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: part-mount
+          path: target/debug/part-mount
+          retention-days: 5
