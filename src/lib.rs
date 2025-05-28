@@ -4,46 +4,17 @@ extern crate loopdev;
 
 use std::fs::OpenOptions;
 use std::io::{Write, Seek, SeekFrom};
-use std::process::exit;
 use std::process::Command;
-use clap::{Parser, Subcommand};
+
 use libparted::{Device, Disk};
 use sys_mount::Mount;
 use loopdev::LoopDevice;
 
-/// A tool to manipulate SD card dump files.
-#[derive(Parser)]
-#[command(author, version, about)]
-struct Cli {
-    /// Target device file.
-    device: String,
-    /// Partition number.
-    #[arg(short, long)]
-    partition_number: i32,
-    #[command(subcommand)]
-    command: CommandOption,
-}
-
-#[derive(Subcommand)]
-enum CommandOption {
-    /// Mount an existing partition.
-    Mount {
-        /// Mount point for the partition.
-        mountpoint: String,
-    },
-    /// Format a partition by zeroing its contents and creating a filesystem.
-    Format {
-        /// Filesystem type: supported values are vfat and ext4.
-        #[arg(short, long)]
-        fs_type: String,
-    },
-}
-
-struct PartMount {
-    device: String,
-    partition_number: i32,
+pub struct PartMount {
+    pub device: String,
+    pub partition_number: i32,
     // Optional test partition info: (offset, length)
-    test_partition_info: Option<(u64, u64)>,
+    pub test_partition_info: Option<(u64, u64)>,
 }
 
 impl PartMount {
@@ -253,29 +224,7 @@ impl PartMount {
     }
 }
 
-fn main(){
-    let cli = Cli::parse();
 
-    if cli.partition_number < 1 {
-        eprintln!("invalid partition number: {}.", cli.partition_number);
-        exit(1);
-    }
-
-    let part = PartMount {
-        device: cli.device.clone(),
-        partition_number: cli.partition_number,
-        test_partition_info: None,
-    };
-
-    match cli.command {
-        CommandOption::Mount { mountpoint } => {
-            part.mount(&mountpoint);
-        },
-        CommandOption::Format { fs_type } => {
-            part.format_partition(fs_type);
-        },
-    }
-}
 
 #[cfg(test)]
 mod tests {
