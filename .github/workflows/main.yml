@@ -3,6 +3,7 @@ name: rust_ci
 on:
   workflow_dispatch:
   push:
+  pull_request:
 
 jobs:
   build:
