@@ -284,8 +284,69 @@ impl PartMount {
 
 
     /// insert binary file to 
-    pub fn insert_partition(&self, file_name: String) {
-        
+    pub fn insert_partition(&self, file_path: &str) {
+        let (offset, length) = match self.get_partition_info() {
+            Some(info) => info,
+            None => {
+                eprintln!("cannot get partition info");
+                return;
+            }
+        };
+        println!("Inserting partition: offset = {}, length = {}", offset, length);
+        let mut dev_file = match OpenOptions::new().read(true).write(true).open(&self.device) {
+            Ok(f) => f,
+            Err(why) => {
+                eprintln!("failed to open device {}: {}", self.device, why);
+                return;
+            }
+        };
+        if let Err(why) = dev_file.seek(SeekFrom::Start(offset)) {
+            eprintln!("seek error: {}", why);
+            return;
+        }
+        let mut input_file = match OpenOptions::new().read(true).open(&file_path) {
+            Ok(f) => f,
+            Err(why) => {
+                eprintln!("failed to open file {}: {}", file_path, why);
+                return;
+            }
+        };
+        let metadata = match input_file.metadata() {
+            Ok(m) => m,
+            Err(why) => {
+                eprintln!("unable to get metadata for {}: {}", file_path, why);
+                return;
+            }
+        };
+        let file_size = metadata.len();
+        if file_size > length {
+            eprintln!("file size {} is larger than partition length {}", file_size, length);
+            return;
+        }
+        let mut bytes_remaining = file_size;
+        let mut buffer = [0u8; 8192];
+        while bytes_remaining > 0 {
+            let read_size = if bytes_remaining < buffer.len() as u64 {
+                bytes_remaining as usize
+            } else {
+                buffer.len()
+            };
+            match input_file.read(&mut buffer[..read_size]) {
+                Ok(0) => break,
+                Ok(n) => {
+                    if let Err(why) = dev_file.write_all(&buffer[..n]) {
+                        eprintln!("write error: {}", why);
+                        return;
+                    }
+                    bytes_remaining -= n as u64;
+                },
+                Err(why) => {
+                    eprintln!("read error: {}", why);
+                    return;
+                }
+            }
+        }
+        println!("Insert complete.");
     }
 }
 

@@ -31,9 +31,14 @@ enum CommandOption {
     },
     /// Dump an existing partition.
     Dump {
-        /// Output file name
+        /// Output file path
         output: String,
-    }
+    },
+    /// Insert a file to an existing partition.
+    Insert {
+        /// Input file path
+        input: String,
+    },
 }
 
 fn main(){
@@ -59,6 +64,9 @@ fn main(){
         },
         CommandOption::Dump { output } => {
             part.dump_partition(output.as_str());
+        },
+        CommandOption::Insert { input } => {
+            part.insert_partition(input.as_str());
         },
     }
 }
