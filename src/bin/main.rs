@@ -29,6 +29,11 @@ enum CommandOption {
         #[arg(short, long)]
         fs_type: String,
     },
+    /// Dump an existing partition.
+    Dump {
+        /// Output file name
+        output: String,
+    }
 }
 
 fn main(){
@@ -51,6 +56,9 @@ fn main(){
         },
         CommandOption::Format { fs_type } => {
             part.format_partition(fs_type);
+        },
+        CommandOption::Dump { output } => {
+            part.dump_partition(output.as_str());
         },
     }
 }
