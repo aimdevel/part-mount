@@ -4,13 +4,13 @@ This tool enable to ease to mount desired partition of the image file.
 
 ## usage
 ```
-A tool to manipulate SD card dump files
-
 Usage: part-mount --partition-number <PARTITION_NUMBER> <DEVICE> <COMMAND>
 
 Commands:
   mount   Mount an existing partition
   format  Format a partition by zeroing its contents and creating a filesystem
+  dump    Dump an existing partition
+  insert  Insert a file to an existing partition
   help    Print this message or the help of the given subcommand(s)
 
 Arguments:
@@ -20,11 +20,6 @@ Options:
   -p, --partition-number <PARTITION_NUMBER>  Partition number
   -h, --help                                 Print help
   -V, --version                              Print version
-koma@hides-pc:~/work/part-mount$ ./target/debug/part-mount mount
-error: the following required arguments were not provided:
-  <MOUNTPOINT>
-
-Usage: part-mount --partition-number <PARTITION_NUMBER> <DEVICE> mount <MOUNTPOINT>
 ```
 
 ## build 
